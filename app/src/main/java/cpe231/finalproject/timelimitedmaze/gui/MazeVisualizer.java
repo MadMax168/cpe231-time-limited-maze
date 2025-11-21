@@ -28,6 +28,7 @@ public final class MazeVisualizer {
 
   private Maze maze;
   private SolverResult result;
+  @SuppressWarnings("unused")
   private String algorithmName;
   private Set<Coordinate> pathSet;
   private Raylib.Texture chiikawaTexture;
@@ -263,6 +264,12 @@ public final class MazeVisualizer {
 
       String totalCost = "Total Cost: " + displayResult.totalCost();
       Raylib.DrawText(totalCost, panelX + 10, currentY, 20, Colors.BLUE);
+      currentY += lineHeight;
+
+      long executionTimeNs = displayResult.endTimeNs() - displayResult.startTimeNs();
+      double executionTimeMs = executionTimeNs / 1_000_000.0;
+      String executionTime = String.format("Execution Time: %.3f ms", executionTimeMs);
+      Raylib.DrawText(executionTime, panelX + 10, currentY, 20, Colors.BLUE);
       currentY += lineHeight + 20;
     } else {
       currentY += lineHeight + 20;
