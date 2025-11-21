@@ -34,7 +34,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'cpe231.ga.project.App'
+    mainClass = 'cpe231.finalproject.timelimitedmaze.App'
 }
 
 tasks.named('test') {
