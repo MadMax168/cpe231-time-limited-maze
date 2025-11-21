@@ -1,16 +1,14 @@
 package cpe231.finalproject.timelimitedmaze;
 
+import cpe231.finalproject.timelimitedmaze.utils.Maze;
+import cpe231.finalproject.timelimitedmaze.utils.MazeStore;
+
 public final class App {
-    private static final String GREETING = "Hello World";
+  private App() {
+  }
 
-    private App() {
-    }
-
-    public static String getGreeting() {
-        return GREETING;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(GREETING);
-    }
+  public static void main(String[] args) {
+    Maze maze = MazeStore.getMaze("m15_15.txt");
+    System.out.println(maze);
+  }
 }
