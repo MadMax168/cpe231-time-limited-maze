@@ -8,6 +8,7 @@ import cpe231.finalproject.timelimitedmaze.utils.MazeCellType;
 import com.raylib.Raylib;
 import com.raylib.Colors;
 import com.raylib.Helpers;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,8 @@ public final class MazeVisualizer {
   private final Maze maze;
   private final SolverResult result;
   private final Set<Coordinate> pathSet;
+  private Raylib.Texture chiikawaTexture;
+  private boolean textureLoaded = false;
   private int cellSize;
 
   public MazeVisualizer(Maze maze, SolverResult result) {
@@ -30,6 +33,53 @@ public final class MazeVisualizer {
     this.result = result;
     this.pathSet = new HashSet<>(result.path());
     calculateCellSize();
+  }
+
+  public void initializeTexture() {
+    if (!textureLoaded) {
+      chiikawaTexture = loadImage();
+      textureLoaded = true;
+    }
+  }
+
+  private void ensureTextureLoaded() {
+    if (!textureLoaded && chiikawaTexture == null) {
+      chiikawaTexture = loadImage();
+      textureLoaded = true;
+    }
+  }
+
+  private Raylib.Texture loadImage() {
+    try {
+      InputStream imageStream = getClass().getClassLoader().getResourceAsStream("ascii-art.png");
+      if (imageStream == null) {
+        System.err.println("Warning: Could not find ascii-art.png in resources");
+        return null;
+      }
+
+      String tempPath = System.getProperty("java.io.tmpdir") + "/chiikawa_temp_" + System.currentTimeMillis() + ".jpg";
+      java.nio.file.Files.copy(imageStream, java.nio.file.Paths.get(tempPath),
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+      imageStream.close();
+
+      Raylib.Image image = Raylib.LoadImage(tempPath);
+      if (image == null) {
+        System.err.println("Warning: Failed to load image from " + tempPath);
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(tempPath));
+        return null;
+      }
+
+      Raylib.Texture texture = Raylib.LoadTextureFromImage(image);
+      Raylib.UnloadImage(image);
+
+      java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(tempPath));
+
+      return texture;
+    } catch (Exception e) {
+      System.err.println("Error loading ascii-art.png: " + e.getMessage());
+      e.printStackTrace();
+      return null;
+    }
   }
 
   private void calculateCellSize() {
@@ -184,6 +234,27 @@ public final class MazeVisualizer {
 
     Raylib.DrawRectangle(legendX, currentY, legendItemSize, legendItemSize, Colors.LIGHTGRAY);
     Raylib.DrawText("Walkable", legendX + legendItemSize + 5, currentY, 16, Colors.BLACK);
+    currentY += lineHeight + 10;
+
+    ensureTextureLoaded();
+    if (chiikawaTexture != null) {
+      int maxImageWidth = 280;
+      int maxImageHeight = 180;
+
+      int textureWidth = chiikawaTexture.width();
+      int textureHeight = chiikawaTexture.height();
+
+      float scaleX = (float) maxImageWidth / textureWidth;
+      float scaleY = (float) maxImageHeight / textureHeight;
+      float scale = Math.min(scaleX, scaleY);
+
+      int imageWidth = (int) (textureWidth * scale);
+      int imageHeight = (int) (textureHeight * scale);
+      int imageX = panelX + (STATS_PANEL_WIDTH - imageWidth) / 2;
+
+      Raylib.Vector2 position = Helpers.newVector2(imageX, currentY);
+      Raylib.DrawTextureEx(chiikawaTexture, position, 0.0f, scale, Colors.WHITE);
+    }
   }
 
   public int getWindowWidth() {

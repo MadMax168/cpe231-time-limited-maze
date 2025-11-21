@@ -30,11 +30,7 @@ public final class MazeGUI {
     System.out.println("Window initialized successfully");
     Raylib.SetTargetFPS(60);
 
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
+    visualizer.initializeTexture();
 
     while (!Raylib.WindowShouldClose()) {
       if (Raylib.IsKeyPressed(Raylib.KEY_ESCAPE)) {
